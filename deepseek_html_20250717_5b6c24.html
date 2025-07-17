@@ -1,0 +1,1047 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Домашние детективы - форум для расследований</title>
+    <style>
+        :root {
+            --primary: #5c3c27;
+            --primary-light: #8b5a2b;
+            --primary-dark: #3e2723;
+            --background: #f5f1e8;
+            --card-bg: #ffffff;
+            --text: #2e2e2e;
+            --text-light: #6d6d6d;
+            --border: #d1c7b7;
+            --hover-bg: #f0ebe1;
+            --upvote: #8b5a2b;
+            --downvote: #6d4c41;
+            --accent: #a52a2a;
+        }
+
+        body {
+            font-family: 'Georgia', 'Times New Roman', serif;
+            background-color: var(--background);
+            color: var(--text);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+            background-image: url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 20px;
+        }
+
+        .header {
+            background-color: rgba(92, 60, 39, 0.9);
+            color: white;
+            padding: 15px 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+            grid-column: 1 / -1;
+            border-bottom: 3px solid var(--accent);
+        }
+
+        .header-content {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .logo span {
+            color: var(--accent);
+            font-style: italic;
+        }
+
+        .tagline {
+            font-size: 14px;
+            font-style: italic;
+            opacity: 0.8;
+        }
+
+        .main {
+            grid-column: 1;
+        }
+
+        .sidebar {
+            grid-column: 2;
+        }
+
+        .card {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 5px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            margin-bottom: 16px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .create-post {
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: rgba(255, 253, 245, 0.95);
+            border: 1px solid var(--primary-light);
+        }
+
+        .create-post h2 {
+            margin-top: 0;
+            color: var(--primary-dark);
+            font-size: 20px;
+            border-bottom: 2px dashed var(--primary-light);
+            padding-bottom: 10px;
+        }
+
+        .post {
+            display: flex;
+            padding: 20px;
+            transition: background-color 0.2s;
+            position: relative;
+        }
+
+        .post:before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: var(--primary);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .post:hover:before {
+            opacity: 1;
+        }
+
+        .post:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .vote {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-right: 16px;
+        }
+
+        .vote-button {
+            background: none;
+            border: none;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--text-light);
+            padding: 4px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .vote-button:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+
+        .upvote:hover {
+            color: var(--upvote);
+            transform: scale(1.2);
+        }
+
+        .downvote:hover {
+            color: var(--downvote);
+            transform: scale(1.2);
+        }
+
+        .vote-count {
+            font-weight: bold;
+            margin: 4px 0;
+            font-size: 14px;
+            color: var(--primary-dark);
+        }
+
+        .post-content {
+            flex: 1;
+        }
+
+        .post-header {
+            font-size: 14px;
+            color: var(--text-light);
+            margin-bottom: 8px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .post-author {
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .post-title {
+            font-size: 22px;
+            font-weight: bold;
+            margin-bottom: 12px;
+            color: var(--text);
+            font-family: 'Georgia', serif;
+        }
+
+        .post-text {
+            margin-bottom: 15px;
+            line-height: 1.6;
+            font-size: 16px;
+        }
+
+        .post-image {
+            max-width: 100%;
+            max-height: 512px;
+            border-radius: 3px;
+            margin-bottom: 15px;
+            display: block;
+            cursor: pointer;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+
+        .post-image:hover {
+            transform: scale(1.01);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+
+        .post-image-preview {
+            border-radius: 3px;
+            margin-bottom: 15px;
+            overflow: hidden;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 16px;
+            font-size: 14px;
+            color: var(--text-light);
+            border-top: 1px dashed var(--border);
+            padding-top: 12px;
+        }
+
+        .action-button {
+            background: none;
+            border: none;
+            color: inherit;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            border-radius: 3px;
+            transition: all 0.2s;
+            font-family: 'Courier New', monospace;
+        }
+
+        .action-button:hover {
+            background-color: rgba(0,0,0,0.05);
+            color: var(--primary-dark);
+        }
+
+        .action-button span {
+            font-size: 16px;
+        }
+
+        .comments {
+            margin-top: 20px;
+            padding-left: 20px;
+            border-left: 3px solid var(--border);
+        }
+
+        .comment {
+            padding: 15px 0;
+            border-bottom: 1px dashed var(--border);
+            position: relative;
+        }
+
+        .comment:last-child {
+            border-bottom: none;
+        }
+
+        .comment:before {
+            content: '»';
+            position: absolute;
+            left: -25px;
+            color: var(--primary-light);
+            font-weight: bold;
+        }
+
+        .comment-header {
+            font-size: 13px;
+            color: var(--text-light);
+            margin-bottom: 6px;
+            font-family: 'Courier New', monospace;
+        }
+
+        .comment-author {
+            color: var(--primary-dark);
+            font-weight: bold;
+        }
+
+        .comment-text {
+            margin-bottom: 10px;
+            line-height: 1.5;
+            font-size: 15px;
+        }
+
+        .comment-image {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 3px;
+            margin-bottom: 10px;
+            display: block;
+            border: 1px solid var(--border);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .comment-actions {
+            display: flex;
+            gap: 12px;
+            font-size: 13px;
+        }
+
+        .create-comment {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: rgba(255, 253, 245, 0.9);
+            border-radius: 5px;
+            border: 1px solid var(--border);
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            font-family: inherit;
+            font-size: 15px;
+            box-sizing: border-box;
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .file-input-container {
+            margin-bottom: 15px;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 8px 15px;
+            background-color: var(--primary);
+            color: white;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            border: 1px solid var(--primary-dark);
+        }
+
+        .file-input-label:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-list {
+            margin-top: 10px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 14px;
+            background-color: var(--hover-bg);
+            padding: 8px 10px;
+            border-radius: 3px;
+            border: 1px dashed var(--border);
+        }
+
+        .file-item button {
+            background: none;
+            color: var(--accent);
+            border: none;
+            padding: 0;
+            margin-left: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .preview-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .image-preview {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: 3px;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-preview {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(139, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .remove-preview:hover {
+            background-color: rgba(139, 0, 0, 1);
+            transform: scale(1.1);
+        }
+
+        .btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            border: 1px solid var(--primary-dark);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+        }
+
+        .sidebar-card {
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: rgba(255, 253, 245, 0.95);
+            border: 1px solid var(--primary-light);
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: var(--primary-dark);
+            border-bottom: 2px dashed var(--primary-light);
+            padding-bottom: 8px;
+            font-family: 'Georgia', serif;
+        }
+
+        .rules-list {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .rules-list li {
+            padding: 10px 0;
+            border-bottom: 1px dashed var(--border);
+            font-size: 14px;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .rules-list li:before {
+            content: '•';
+            position: absolute;
+            left: 0;
+            color: var(--accent);
+            font-weight: bold;
+        }
+
+        .rules-list li:last-child {
+            border-bottom: none;
+        }
+
+        .full-image {
+            max-width: 100%;
+            max-height: 80vh;
+            display: block;
+            margin: 0 auto;
+            border-radius: 5px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90%;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: rgba(139, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .close-modal:hover {
+            background-color: rgba(139, 0, 0, 1);
+            transform: rotate(90deg);
+        }
+
+        .mystery-icon {
+            font-size: 24px;
+            margin-right: 10px;
+            color: var(--accent);
+        }
+
+        .search-box {
+            margin-bottom: 20px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid var(--border);
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+            background-color: rgba(255, 255, 255, 0.8);
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%236d6d6d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
+            background-repeat: no-repeat;
+            background-position: 10px center;
+            padding-left: 35px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+            .sidebar {
+                display: none;
+            }
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 10px;
+            }
+            .post-title {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <div class="logo">ДОМАШНИЕ <span>ДЕТЕКТИВЫ</span></div>
+            <div class="tagline">Разгадываем тайны вместе</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <main class="main">
+            <div class="card create-post">
+                <h2><span class="mystery-icon">🔍</span> Новое расследование</h2>
+                <div class="form-group">
+                    <input type="text" id="postTitle" placeholder="Заголовок вашего расследования" required>
+                </div>
+                <div class="form-group">
+                    <textarea id="postContent" placeholder="Опишите вашу загадку или находку..."></textarea>
+                </div>
+                <div class="form-group">
+                    <input type="text" id="postAuthor" placeholder="Ваше имя или псевдоним (необязательно)">
+                </div>
+                <div class="file-input-container">
+                    <label class="file-input-label">
+                        <span class="mystery-icon">📎</span> Прикрепить доказательства
+                        <input type="file" class="file-input" id="postFiles" accept="image/*,video/*" multiple>
+                    </label>
+                    <div class="preview-container" id="postPreview"></div>
+                </div>
+                <button class="btn" onclick="createPost()"><span class="mystery-icon">🔎</span> Опубликовать</button>
+            </div>
+
+            <div class="search-box">
+                <input type="text" class="search-input" placeholder="Поиск по расследованиям...">
+            </div>
+
+            <div id="postsList">
+                <!-- Посты будут добавляться здесь -->
+            </div>
+        </main>
+
+        <aside class="sidebar">
+            <div class="card sidebar-card">
+                <div class="sidebar-title"><span class="mystery-icon">📜</span> Правила клуба</div>
+                <ul class="rules-list">
+                    <li>Только реальные истории и находки</li>
+                    <li>Уважайте мнение других детективов</li>
+                    <li>Не разглашайте личные данные</li>
+                    <li>Фейки и вымыслы запрещены</li>
+                    <li>Помогайте друг другу в расследованиях</li>
+                </ul>
+            </div>
+
+            <div class="card sidebar-card">
+                <div class="sidebar-title"><span class="mystery-icon">🏆</span> Топ детективов</div>
+                <ul class="rules-list">
+                    <li>Сергей "Шерлок" Иванов</li>
+                    <li>Анна "Пуаро" Петрова</li>
+                    <li>Максим "Коломбо" Сидоров</li>
+                    <li>Ольга "Мисс Марпл" Козлова</li>
+                    <li>Дмитрий "Холмс" Фёдоров</li>
+                </ul>
+            </div>
+        </aside>
+    </div>
+
+    <div class="modal" id="imageModal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal()">×</button>
+            <img class="full-image" id="modalImage" src="" alt="Увеличенное изображение">
+        </div>
+    </div>
+
+    <script>
+        // Хранилище данных
+        let posts = JSON.parse(localStorage.getItem('forumPosts')) || [
+            {
+                title: "Таинственная шкатулка на чердаке",
+                content: "Нашел эту старую шкатулку при разборе вещей на чердаке дома, купленного недавно. Внутри были какие-то странные символы и пожелтевшая записка. Кто-нибудь может помочь расшифровать?",
+                author: "Андрей Новиков",
+                date: new Date().toISOString(),
+                votes: 15,
+                images: [],
+                comments: [
+                    {
+                        author: "Мария Историк",
+                        content: "Похоже на символы масонов начала 20 века. Можете сфотографировать крупнее символы?",
+                        date: new Date().toISOString(),
+                        images: []
+                    }
+                ]
+            },
+            {
+                title: "Загадочные знаки в старом подвале",
+                content: "При ремонте в подвале 100-летнего дома обнаружил эти странные знаки на стене. Дом находится в центре города, раньше здесь была аптека. Что это может быть?",
+                author: "Ирина Соколова",
+                date: new Date().toISOString(),
+                votes: 8,
+                images: [],
+                comments: []
+            }
+        ];
+        let postFiles = [];
+        
+        // Отображаем существующие посты
+        function displayPosts() {
+            const postsList = document.getElementById('postsList');
+            postsList.innerHTML = '';
+            
+            posts.forEach((post, index) => {
+                const postElement = document.createElement('div');
+                postElement.className = 'card post';
+                
+                // Форматирование даты
+                const date = new Date(post.date);
+                const formattedDate = `${date.getDate()}.${date.getMonth()+1}.${date.getFullYear()} ${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
+                
+                // Отображение изображений
+                let imagesHtml = '';
+                if (post.images && post.images.length > 0) {
+                    imagesHtml = '<div class="post-image-preview">';
+                    post.images.forEach((img, i) => {
+                        imagesHtml += `
+                            <img src="${img.url}" class="post-image" alt="Доказательство ${i+1}" 
+                                 onclick="openModal('${img.url}')">
+                        `;
+                    });
+                    imagesHtml += '</div>';
+                }
+                
+                // Комментарии
+                let commentsHtml = '';
+                if (post.comments && post.comments.length > 0) {
+                    commentsHtml = '<div class="comments">';
+                    post.comments.forEach((comment, commentIndex) => {
+                        // Изображения в комментариях
+                        let commentImagesHtml = '';
+                        if (comment.images && comment.images.length > 0) {
+                            commentImagesHtml = '<div style="margin-top: 10px;">';
+                            comment.images.forEach((img, i) => {
+                                commentImagesHtml += `
+                                    <img src="${img.url}" class="comment-image" alt="Доказательство ${i+1}" 
+                                         onclick="openModal('${img.url}')">
+                                `;
+                            });
+                            commentImagesHtml += '</div>';
+                        }
+                        
+                        const commentDate = new Date(comment.date);
+                        const formattedCommentDate = `${commentDate.getDate()}.${commentDate.getMonth()+1}.${commentDate.getFullYear()} ${commentDate.getHours()}:${commentDate.getMinutes().toString().padStart(2, '0')}`;
+                        
+                        commentsHtml += `
+                            <div class="comment">
+                                <div class="comment-header">
+                                    <span class="comment-author">${comment.author || 'Анонимный детектив'}</span> • ${formattedCommentDate}
+                                </div>
+                                <div class="comment-text">${comment.content}</div>
+                                ${commentImagesHtml}
+                                <div class="comment-actions">
+                                    <button class="action-button"><span>🔍</span> Расследовать</button>
+                                    <button class="action-button"><span>💡</span> Гипотеза</button>
+                                </div>
+                            </div>
+                        `;
+                    });
+                    commentsHtml += '</div>';
+                }
+                
+                postElement.innerHTML = `
+                    <div class="vote">
+                        <button class="vote-button upvote" onclick="votePost(${index}, 1)">▲</button>
+                        <div class="vote-count">${post.votes || 0}</div>
+                        <button class="vote-button downvote" onclick="votePost(${index}, -1)">▼</button>
+                    </div>
+                    <div class="post-content">
+                        <div class="post-header">
+                            <span class="post-author">${post.author || 'Анонимный детектив'}</span> • ${formattedDate}
+                        </div>
+                        <h3 class="post-title">${post.title}</h3>
+                        <div class="post-text">${post.content}</div>
+                        ${imagesHtml}
+                        <div class="post-actions">
+                            <button class="action-button" onclick="focusComment(${index})">
+                                <span>🔎</span> ${post.comments ? post.comments.length : 0} версий
+                            </button>
+                            <button class="action-button"><span>💡</span> Предложить гипотезу</button>
+                        </div>
+                        ${commentsHtml}
+                        <div class="create-comment" id="commentForm-${index}">
+                            <div class="form-group">
+                                <textarea id="commentContent-${index}" rows="3" placeholder="Ваша версия или догадка..."></textarea>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" id="commentAuthor-${index}" placeholder="Ваше имя (необязательно)">
+                            </div>
+                            <div class="file-input-container">
+                                <label class="file-input-label">
+                                    <span class="mystery-icon">📎</span> Прикрепить доказательства
+                                    <input type="file" class="file-input" id="commentFiles-${index}" 
+                                           accept="image/*,video/*" multiple onchange="updateCommentPreview(${index})">
+                                </label>
+                                <div class="preview-container" id="commentPreview-${index}"></div>
+                            </div>
+                            <button class="btn" onclick="addComment(${index})"><span class="mystery-icon">🔍</span> Отправить</button>
+                        </div>
+                    </div>
+                `;
+                
+                postsList.appendChild(postElement);
+            });
+        }
+        
+        // Обновляем превью изображений для поста
+        document.getElementById('postFiles').addEventListener('change', function(e) {
+            postFiles = Array.from(e.target.files);
+            updatePostPreview();
+        });
+        
+        function updatePostPreview() {
+            const previewContainer = document.getElementById('postPreview');
+            previewContainer.innerHTML = '';
+            
+            postFiles.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.createElement('div');
+                    preview.className = 'image-preview';
+                    preview.innerHTML = `
+                        <img src="${e.target.result}" alt="Доказательство">
+                        <button class="remove-preview" onclick="removePostFile(${index})">×</button>
+                    `;
+                    previewContainer.appendChild(preview);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        // Обновляем превью изображений для комментария
+        function updateCommentPreview(postIndex) {
+            const input = document.getElementById(`commentFiles-${postIndex}`);
+            const files = Array.from(input.files);
+            const previewContainer = document.getElementById(`commentPreview-${postIndex}`);
+            previewContainer.innerHTML = '';
+            
+            files.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.createElement('div');
+                    preview.className = 'image-preview';
+                    preview.innerHTML = `
+                        <img src="${e.target.result}" alt="Доказательство">
+                        <button class="remove-preview" onclick="removeCommentFile(${postIndex}, ${index})">×</button>
+                    `;
+                    previewContainer.appendChild(preview);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+        
+        // Удаляем файл из поста
+        function removePostFile(index) {
+            postFiles.splice(index, 1);
+            document.getElementById('postFiles').value = '';
+            updatePostPreview();
+        }
+        
+        // Удаляем файл из комментария
+        function removeCommentFile(postIndex, fileIndex) {
+            const input = document.getElementById(`commentFiles-${postIndex}`);
+            const files = Array.from(input.files);
+            files.splice(fileIndex, 1);
+            
+            // К сожалению, нельзя напрямую изменить значение input.files,
+            // поэтому мы просто обновляем превью без удаленного файла
+            updateCommentPreview(postIndex);
+        }
+        
+        // Создаем новый пост
+        function createPost() {
+            const title = document.getElementById('postTitle').value;
+            const content = document.getElementById('postContent').value;
+            const author = document.getElementById('postAuthor').value;
+            
+            if (!title) {
+                alert('Название расследования обязательно!');
+                return;
+            }
+            
+            // Создаем объекты для изображений
+            const images = [];
+            for (let i = 0; i < postFiles.length; i++) {
+                const file = postFiles[i];
+                images.push({
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                    url: URL.createObjectURL(file)
+                });
+            }
+            
+            const newPost = {
+                title,
+                content,
+                author: author || 'Анонимный детектив',
+                date: new Date().toISOString(),
+                votes: 0,
+                images,
+                comments: []
+            };
+            
+            posts.unshift(newPost);
+            savePosts();
+            
+            // Очищаем поля формы
+            document.getElementById('postTitle').value = '';
+            document.getElementById('postContent').value = '';
+            document.getElementById('postAuthor').value = '';
+            document.getElementById('postFiles').value = '';
+            document.getElementById('postPreview').innerHTML = '';
+            postFiles = [];
+            
+            displayPosts();
+        }
+        
+        // Добавляем комментарий
+        function addComment(postIndex) {
+            const content = document.getElementById(`commentContent-${postIndex}`).value;
+            const author = document.getElementById(`commentAuthor-${postIndex}`).value;
+            
+            if (!content) {
+                alert('Комментарий не может быть пустым!');
+                return;
+            }
+            
+            // Получаем изображения из input
+            const input = document.getElementById(`commentFiles-${postIndex}`);
+            const files = Array.from(input.files);
+            const images = [];
+            
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                images.push({
+                    name: file.name,
+                    size: file.size,
+                    type: file.type,
+                    url: URL.createObjectURL(file)
+                });
+            }
+            
+            const newComment = {
+                author: author || 'Анонимный детектив',
+                content,
+                date: new Date().toISOString(),
+                images
+            };
+            
+            if (!posts[postIndex].comments) {
+                posts[postIndex].comments = [];
+            }
+            
+            posts[postIndex].comments.push(newComment);
+            savePosts();
+            
+            // Очищаем поля комментария
+            document.getElementById(`commentContent-${postIndex}`).value = '';
+            document.getElementById(`commentAuthor-${postIndex}`).value = '';
+            document.getElementById(`commentFiles-${postIndex}`).value = '';
+            document.getElementById(`commentPreview-${postIndex}`).innerHTML = '';
+            
+            displayPosts();
+        }
+        
+        // Голосование за пост
+        function votePost(postIndex, value) {
+            if (!posts[postIndex].votes) {
+                posts[postIndex].votes = 0;
+            }
+            
+            posts[postIndex].votes += value;
+            savePosts();
+            displayPosts();
+        }
+        
+        // Фокусируемся на поле комментария
+        function focusComment(postIndex) {
+            const commentForm = document.getElementById(`commentForm-${postIndex}`);
+            const textarea = document.getElementById(`commentContent-${postIndex}`);
+            
+            commentForm.style.display = 'block';
+            textarea.focus();
+        }
+        
+        // Открываем модальное окно с изображением
+        function openModal(imageUrl) {
+            const modal = document.getElementById('imageModal');
+            const modalImg = document.getElementById('modalImage');
+            
+            modalImg.src = imageUrl;
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Закрываем модальное окно
+        function closeModal() {
+            document.getElementById('imageModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Сохраняем посты в localStorage
+        function savePosts() {
+            localStorage.setItem('forumPosts', JSON.stringify(posts));
+        }
+        
+        // Инициализация при загрузке
+        window.onload = function() {
+            displayPosts();
+            
+            // Закрытие модального окна по клику вне изображения
+            document.getElementById('imageModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+            
+            // Закрытие по ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+        };
+    </script>
+</body>
+</html>
